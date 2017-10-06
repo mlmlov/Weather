@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: content: https://ssl.gstatic.com; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+    <script src="components/loader.js"></script>
+    <link rel="stylesheet" href="components/loader.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+    $(function () {
+        //input要素を押されたときの処理
+        $("input").on("click", function () {
+            $("#gaikyo").html("");
+            $("#tenki").html("");
+            console.log("ok");
+            var ken = $(this).attr("xml_file");
+            //ajax通信
+            $.ajax({
+                url:"http://javascriptajax.azurewebsites.net/get_tenki_json.php?city="+ken,
+                type: "GET",
+                dataType: "json",
+            }).done(function (data) {   //通信成功時
+                console.log(data);
+                
+                //天気の概況文
+                console.log(data.description.text);
+
+                $("#gaikyo").append(data.description.text);
+
+                //連想配列の長さを得るobject.keyメソッド
+                console.log(Object.keys(data.forecasts).length);
+                var json_obj_length = Object.keys(data.forecasts).length;
+
+                //3日ぶんのデータを表示する
+                var day = "";
+                var img = "";
+                var text = "";
+                
+                day+="<tr>";
+                for(var i =0;i<json_obj_length;i++){
+                    day+="<td>" +data.forecasts[i].dateLabel+"</td>";
+                }
+                day+="</tr>";
+
+                //アイコンを表示
+                img+="<tr>";
+                for(var i =0;i<json_obj_length;i++){ 
+                    img+="<td><img src='" +data.forecasts[i].image.url+"'></td>";
+                }
+                img+="</tr>";
+                
+                //テキストを表示
+                text+="<tr>";
+                for(var i =0;i<json_obj_length;i++){ 
+                    text+="<td>"+data.forecasts[i].telop+"</td>";
+                }
+                text+="</tr>";
+                    
+                
+                $("#tenki").append(day);
+                $("#tenki").append(img);
+                $("#tenki").append(text);
+                
+                //リンクを表示する
+                var pinpointLocations = "";
+                var pinpointLocations_length = Object.keys(data.pinpointLocations).length;
+                
+                for(var i =0;i<pinpointLocations_length;i++){
+                    pinpointLocations+="<tr><td><a href='" +data.pinpointLocations[i].link+"'>" +data.pinpointLocations[i].name+"</a></td></tr>";
+                }
+                
+                $("#city").html("");
+                $("#city").append(pinpointLocations);
+                
+            }).fail(function () { //ajaxの通信に失敗した場合
+                console.log("ng")
+            });
+        });
+    });
+    </script>
+</head>
+<body><h1>天気予報</h1>
+    <!--県の選択用のボタン-->
+    <table id="select">
+        <tr>
+            <td><input type="button" id="kagawa" name="kagawa" value="香川県" xml_file="370000" class="ken"></td>
+        </tr>
+        <tr>
+            <td><input type="button" id="ehieme" name="ehieme" value="愛媛県" xml_file="380010" class="ken"></td>
+        </tr>
+        <tr>
+            <td><input type="button" id="tokusima" name="tokusima" value="徳島県" xml_file="360010" class="ken"></td>
+        </tr>
+        <tr>    
+            <td><input type="button" id="kouchi" name="kouchi" value="高知県" xml_file="390010" class="ken"></td>
+        </tr>
+    </table>
+
+    <p id="gaikyo"></p>
+    <table id="tenki"></table>
+    <table id="city"></table>
+    
+</body>
+</html>

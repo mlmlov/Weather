@@ -1,0 +1,13 @@
+/**/
+@charset "UTF-8";
+h1{
+    color: red;
+}
+.ken{
+    width: 350px;
+    height: 45px;
+    font-size: 25px;
+}
+#gaikyo{
+    font-size: 20px;
+}
